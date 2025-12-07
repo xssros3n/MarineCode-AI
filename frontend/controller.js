@@ -1,0 +1,122 @@
+$(document).ready(function () {
+  // Display Speak Message
+  eel.expose(DisplayMessage);
+  function DisplayMessage(message) {
+    $(".siri-message li:first").text(message);
+    $(".siri-message").textillate("start");
+    return "displayed";
+  }
+
+  eel.expose(ShowHood);
+  function ShowHood() {
+    $("#Oval").attr("hidden", false);
+    $("#SiriWave").attr("hidden", true);
+    return "shown";
+  }
+
+  eel.expose(senderText);
+  function senderText(message) {
+    var chatBox = document.getElementById("chat-canvas-body");
+    if (message.trim() !== "") {
+      chatBox.innerHTML += `<div class="row justify-content-end mb-4">
+          <div class = "width-size">
+          <div class="sender_message">${message}</div>
+      </div>`;
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    return "sent";
+  }
+
+  eel.expose(receiverText);
+  function receiverText(message) {
+    var chatBox = document.getElementById("chat-canvas-body");
+    if (message.trim() !== "") {
+      chatBox.innerHTML += `<div class="row justify-content-start mb-4">
+          <div class = "width-size">
+          <div class="receiver_message">${message}</div>
+          </div>
+      </div>`;
+
+      // Scroll to the bottom of the chat box
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    return "received";
+  }
+  eel.expose(hideLoader);
+  function hideLoader() {
+    $("#Loader").attr("hidden", true);
+    $("#FaceAuth").attr("hidden", false);
+    return "loader_hidden";
+  }
+  // Hide Face auth and display Face Auth success animation
+  eel.expose(hideFaceAuth);
+  function hideFaceAuth() {
+    $("#FaceAuth").attr("hidden", true);
+    $("#FaceAuthSuccess").attr("hidden", false);
+    return "face_auth_hidden";
+  }
+  // Hide success and display
+  eel.expose(hideFaceAuthSuccess);
+  function hideFaceAuthSuccess() {
+    $("#FaceAuthSuccess").attr("hidden", true);
+    $("#HelloGreet").attr("hidden", false);
+    return "face_auth_success_hidden";
+  }
+
+  // Hide Start Page and display blob
+  eel.expose(hideStart);
+  function hideStart() {
+    $("#Start").attr("hidden", true);
+
+    setTimeout(function () {
+      $("#Oval").addClass("animate__animated animate__zoomIn");
+    }, 1000);
+    setTimeout(function () {
+      $("#Oval").attr("hidden", false);
+    }, 1000);
+    return "start_hidden";
+  }
+
+  // Voice command functionality
+  $("#MicBtn").click(function () {
+    $("#MicBtn").prop("disabled", true);
+    $("#MicBtn").html('<i class="bi bi-mic-fill text-warning"></i>');
+    eel.takeAllCommands();
+    setTimeout(function () {
+      $("#MicBtn").prop("disabled", false);
+      $("#MicBtn").html('<i class="bi bi-mic"></i>');
+    }, 3000);
+  });
+
+  // Chat button functionality
+  $("#ChatBtn").click(function () {
+    var message = $("#chatbox").val();
+    if (message.trim() !== "") {
+      eel.takeAllCommands(message);
+      $("#chatbox").val("");
+    }
+  });
+
+  // Enter key functionality
+  $("#chatbox").keypress(function (e) {
+    if (e.which == 13) {
+      $("#ChatBtn").click();
+    }
+  });
+
+  // Conversation mode toggle
+  let conversationMode = false;
+  $("#ConversationBtn").click(function () {
+    conversationMode = !conversationMode;
+    if (conversationMode) {
+      $("#ConversationBtn").html('<i class="bi bi-chat-heart-fill text-success"></i>');
+      $("#ConversationBtn").attr("title", "Conversation Mode ON - Click to turn OFF");
+      eel.startConversationMode();
+    } else {
+      $("#ConversationBtn").html('<i class="bi bi-chat-heart"></i>');
+      $("#ConversationBtn").attr("title", "Conversation Mode OFF - Click to turn ON");
+      eel.stopConversationMode();
+    }
+  });
+});
